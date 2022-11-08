@@ -1,9 +1,16 @@
 #compdef f3d
 
+local multiline
 local commandlist
 local longopts
 local shortopts
 local arguments
+
+# MacOS-compatible regex for multiline helptext.
+# See https://stackoverflow.com/a/37951863/4672189 for details.
+multiline='/\
+-[a-z\-]/!s/\
+/ /;'
 
 # commandlist operations:
 # Discard:
@@ -12,14 +19,14 @@ local arguments
 #   - Section headers.
 #   - Illegal characters [].
 #   - Leading whitespace.
-# Join multiline helptext. See https://stackoverflow.com/a/37951863/4672189 for details.
+# Join multiline helptext.
 # Normalize whitespace.
 # Discard trailing whitespace.
 commandlist=$(
   f3d --help 2>&1 |
     tail -n +5 |
     sed '1,/Keys:/!d' | sed '/.*:$/d' | sed 's/\[.*\] *//g' | sed 's/^\s*//' |
-    sed -e ':a' -e 'N' -e '/\n-[a-z\-]/!s/\n/ /' -e 'ta' -e 'P' -e 'D' | 
+    sed -e ':a' -e 'N' -e "$multiline" -e 'ta' -e 'P' -e 'D' | 
     sed 's/\s\{1,\}/ /g; s/\s*$//'                                                       
 )
 
